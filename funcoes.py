@@ -220,4 +220,41 @@ def Dif_fin_ver(nr, concreto, steel, yc, Area, b, h, yt, yb, m, f_inic, L, N_0, 
 
     return sol
 
+def Plot_Trajetoria_eq(nr, concreto, steel, yc, Area, b, h, yt, yb, m, f_inic, L, tol_f,e,nu_min,nu_max):
+    N=np.zeros(100)
+    M=np.zeros(100)
+    f=np.zeros(100)
+    i=0
+    for nu in np.linspace(nu_min,nu_max,100):    # Adimensionais
+        mi = nu*e #Adimensional do momento fletor solicitante
+        # Verificação por diferenças finitas
+        M_0 = concreto.sigma_cd * b * h * h * mi
+        N_0 = concreto.sigma_cd * b * h * nu
+        sol=Dif_fin_ver(nr, concreto, steel, yc, Area, b, h, yt, yb, m, f_inic, L, N_0, M_0, tol_f)
+        if sol!=[]:
+            N[i]=sol[-1, 0]
+            M[i]=sol[-1, 1]
+            f[i]=sol[-1, 2]
+            i=i+1
+        else:
+            break
+    return [N,M,f]
 
+def Plot_Trajetoria_elui(nr, concreto, steel, yc, Area, b, h, yt, yb, m, f_inic, L, tol_f,e_min,e_max):
+    N=np.zeros(100)
+    M=np.zeros(100)
+    f=np.zeros(100)
+    i=0
+    for e in np.linspace(e_min,e_max,50):    # Adimensionais
+        [Npt, Mpt,fpt] = Plot_Trajetoria_eq(nr, concreto, steel, yc, Area, b, h, yt, yb, m, f_inic, L, tol_f,e,0.001,6)
+        N[i]=ultimo_valor_nao_nulo(Npt)
+        M[i]=ultimo_valor_nao_nulo(Mpt)
+        f[i]=e
+        i=i+1
+    return [N,M,f]
+
+
+def ultimo_valor_nao_nulo(vetor):
+    for i in range(len(vetor) - 1, -1, -1):
+        if vetor[i] != 0:
+            return vetor[i]

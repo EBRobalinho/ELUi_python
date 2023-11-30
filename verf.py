@@ -1,8 +1,6 @@
 from Classes import *
 from funcoes import *
 
-
-
 # Dimensões da seção retangular
 b = 0.2  # em metros
 h = 0.5  # em metros
@@ -54,12 +52,15 @@ d=dig.diagrama_def(12000)
 N=np.zeros(len(d))
 M=np.zeros(len(d))
 for i in range(0,len(d)):
-    [N[i],M[i]]=vetor_esfor(concreto, b, h, yt, yb, steel, yc, Area, d[i,0], d[i,1])
+    [N[i],M[i]]=vetor_esfor(concreto, b, h, yt, yb, steel, yc, Area, d[i,1], d[i,0])
+[Nt,Mt,f]=Plot_Trajetoria_eq(nr, concreto, steel, yc, Area, b, h, yt, yb, m, f_inic, L, tol_f,1/3,0.001,0.6)
 
-plt.plot(M[:]/(concreto.sigma_cd * b * h * h ), N[:]/(concreto.sigma_cd * b * h) , '--')
-plt.plot(sol[:, 1]/(concreto.sigma_cd * b * h*h),sol[:, 0]/(concreto.sigma_cd * b * h), '*')
-plt.show()
-
-# Plotar resultados
-plt.plot(100 * sol[:, 2] / h, sol[:, 4] * L / m, '*')
+plt.plot(N[:]/(concreto.sigma_cd * b * h),M[:]/(concreto.sigma_cd * b * h * h ), '--')
+#plt.plot(sol[:, 0]/(concreto.sigma_cd * b * h*h),sol[:, 1]/(concreto.sigma_cd * b * h), '*')
+plt.plot(Nt[:]/(concreto.sigma_cd * b * h),(Mt[:] + Nt[:]*f[:])/(concreto.sigma_cd * b * h * h ), '*')
+plt.grid(color='black')
+plt.xlim(left=0)
+plt.ylim(bottom=0)
+[Npt,Mpt,fpt]=Plot_Trajetoria_elui(nr, concreto, steel, yc, Area, b, h, yt, yb, m, f_inic, L, tol_f,0.1,1)
+plt.plot(Npt[:]/(concreto.sigma_cd * b * h),(Npt[:]*fpt[:])/(concreto.sigma_cd * b * h * h ), '+')
 plt.show()
